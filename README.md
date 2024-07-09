@@ -3,7 +3,7 @@ Mac을 사용하면서 가장 편리했던 점은 어떤 점이신가요?
 
 그래서 Windows에서도 사용 가능한 Windows Dock를 만들어보았습니다.
 
-![windockImg](https://github.com/hyunpap2r/WinDock/assets/91259577/45f2e27f-6499-4ce5-aa31-22123255889b)
+![image](https://github.com/hyunpap2r/WinDock/assets/91259577/db206ce2-dabc-4937-bd92-a63cedd56765)
 
 우선 기존 사용 로직은 아래와 같습니다.
 
