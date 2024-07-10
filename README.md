@@ -5,17 +5,17 @@ Mac을 사용하면서 가장 편리했던 점은 어떤 점이신가요?
 
 ![image](https://github.com/hyunpap2r/WinDock/assets/91259577/db206ce2-dabc-4937-bd92-a63cedd56765)
 
-우선 기존 사용 로직은 아래와 같습니다.
+우선 메인 기능은 아래와 같습니다.
 
-1. '.exe'파일만 Dock에 사용 가능.
-2. 마우스 위치에 따른 반응형.
+1. '.exe'파일만 Dock 추가 가능.
+2. 마우스 위치에 따른 Application 반응.
 3. Dock의 위치 사용자 지정 가능.
-
+4. Dock Horizontal Mode.
 
 가장 기본적인 기능을 시작으로 추가적인 기능을 개발할 예정입니다.
 
 [추가 예정]
-1. Dock 세로모드.
+1. Dock Vertival Mode.
 2. Dock Size Customizing
 3. Dock Theme Customizing
 4. Always Front 기능
