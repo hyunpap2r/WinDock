@@ -14,8 +14,9 @@ namespace WinDock
         private System.Windows.Forms.Timer hideTimer;
 
         private Panel dockPanel;
-        private Button addButton;
-        private Button settingsButton;
+        private CircularButton addButton;
+        private CircularButton settingsButton;
+        private ContextMenuStrip iconContextMenu;
 
 
         private bool isDragging = false;
@@ -29,7 +30,7 @@ namespace WinDock
         private const uint SWP_NOMOVE = 0x0002;
         private const uint SWP_NOACTIVATE = 0x0010;
 
-        private int iconSize = 40; // 아이콘 크기
+        private int iconSize = 40;
         private bool isVertical = false; // 도크 방향 (가로: false, 세로: true)
 
 
@@ -71,16 +72,16 @@ namespace WinDock
 
             this.Controls.Add(dockPanel);
 
-            addButton = new Button();
+            addButton = new CircularButton();
             addButton.Text = "+";
-            addButton.Size = new Size(40, 40);
+            addButton.Size = new Size(30, 30);
             addButton.Location = new Point(dockPanel.Width - 40, 10);
             addButton.Click += AddButton_Click;
             dockPanel.Controls.Add(addButton);
 
+
             /*
             settingsButton = new Button();
-
             settingsButton.Text = "se";
             settingsButton.Size = new Size(40, 40);
             settingsButton.BackColor = Color.FromArgb(255, 0, 122, 204);
@@ -104,11 +105,11 @@ namespace WinDock
             this.MouseMove += Form1_MouseMove;
             this.MouseUp += Form1_MouseUp;
 
+            
             // 도크의 자식 컨트롤 클릭 이벤트를 통해 드래그를 방해하지 않도록 하기 위해
             dockPanel.MouseDown += Form1_MouseDown;
             dockPanel.MouseMove += Form1_MouseMove;
             dockPanel.MouseUp += Form1_MouseUp;
-
 
         }
 
@@ -152,7 +153,7 @@ namespace WinDock
 
 
 
-
+        // Dock Position 재정의
         private void Form1_MouseMove(object sender, MouseEventArgs e)
         {
             if (isDragging)
@@ -162,6 +163,7 @@ namespace WinDock
                 this.Location = new Point(originalForm.X + diff.X, originalForm.Y + diff.Y);
             }
         }
+
 
         private void Form1_MouseUp(object sender, MouseEventArgs e)
         {
@@ -184,6 +186,7 @@ namespace WinDock
         }
 
 
+        // Button, Panel 함수
         private void AddApplicationToDock(string exePath)
         {
             Icon appIcon = Icon.ExtractAssociatedIcon(exePath);
@@ -210,9 +213,15 @@ namespace WinDock
             iconPictureBox.MouseEnter += IconPictureBox_MouseEnter;
             iconPictureBox.MouseLeave += IconPictureBox_MouseLeave;
 
-            iconPictureBox.Click += (s, e) => Process.Start(exePath);
 
-            iconPictureBox.Click += (s, e) => Process.Start(exePath);
+            // 우클릭시 setting 기능 추가를 위해 좌클릭 한정으로 변경
+            iconPictureBox.MouseClick += (s, e) =>
+            {
+                if (e.Button == MouseButtons.Left) 
+                {
+                    Process.Start(exePath);
+                }
+            };
 
             Label nameLabel = new Label
             {
@@ -228,6 +237,9 @@ namespace WinDock
 
             PositionAddButton();
         }
+
+       
+
 
         private void IconPictureBox_MouseEnter(object sender, EventArgs e)
         {
@@ -249,7 +261,6 @@ namespace WinDock
                 icon.Location = new Point(icon.Location.X + 5, icon.Location.Y + 5);
             }
         }
-
 
 
         private void HideTimer_Tick(object sender, EventArgs e)
