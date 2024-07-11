@@ -5,6 +5,8 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Windows.Forms;
 using System.Drawing.Drawing2D;
+using System.Collections;
+using Shell32;
 
 
 namespace WinDock
@@ -15,8 +17,7 @@ namespace WinDock
 
         private Panel dockPanel;
         private CircularButton addButton;
-        private CircularButton settingsButton;
-        private ContextMenuStrip iconContextMenu;
+        Stack<int> iconPosition = new Stack<int>();
 
 
         private bool isDragging = false;
@@ -79,6 +80,10 @@ namespace WinDock
             addButton.Click += AddButton_Click;
             dockPanel.Controls.Add(addButton);
 
+            Stack buttonPosition = new Stack();
+
+
+
 
             /*
             settingsButton = new Button();
@@ -118,16 +123,23 @@ namespace WinDock
         {
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
-                openFileDialog.Filter = "Files|*.exe";
+                openFileDialog.Filter = "All Files|*.*";
                 openFileDialog.Title = "Dock File 추가";
+
+                openFileDialog.FilterIndex = 1;
 
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     string exePath = openFileDialog.FileName;
-                    AddApplicationToDock(exePath);
+                    string fileTitle = Path.GetFileName(exePath);
+
+                    AddApplicationToDock(exePath, fileTitle); 
                 }
             }
         }
+
+
+
         private void Form1_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
@@ -186,17 +198,27 @@ namespace WinDock
         }
 
 
-        // Button, Panel 함수
-        private void AddApplicationToDock(string exePath)
+        // Button, Panel 
+        private void AddApplicationToDock(string exePath, string fileTitle)
         {
             Icon appIcon = Icon.ExtractAssociatedIcon(exePath);
-            string appName = Path.GetFileNameWithoutExtension(exePath);
-
+            string appName = exePath;
 
             // 아이콘을 추가할 위치 계산
-            int iconX = 10 + (dockPanel.Controls.Count - 1) * iconSize;
-            int iconY = (dockPanel.Height - iconSize) / 2 - 10; 
+            int iconX;
+            int iconY = (dockPanel.Height - iconSize) / 2 - 10;
 
+
+            if (iconPosition.Count == 0)
+            {
+                iconX = 10 + (dockPanel.Controls.Count - 1) * iconSize;
+                iconPosition.Push(iconX);
+            }
+            else
+            {
+                iconX = 15 + iconPosition.Peek() + iconSize;
+                iconPosition.Push(iconX);
+            }
 
             PictureBox iconPictureBox = new PictureBox
             {
@@ -207,20 +229,6 @@ namespace WinDock
                 Tag = exePath,
                 BackColor = Color.Transparent 
 
-            };
-
-
-            iconPictureBox.MouseEnter += IconPictureBox_MouseEnter;
-            iconPictureBox.MouseLeave += IconPictureBox_MouseLeave;
-
-
-            // 우클릭시 setting 기능 추가를 위해 좌클릭 한정으로 변경
-            iconPictureBox.MouseClick += (s, e) =>
-            {
-                if (e.Button == MouseButtons.Left) 
-                {
-                    Process.Start(exePath);
-                }
             };
 
             Label nameLabel = new Label
@@ -234,6 +242,19 @@ namespace WinDock
 
             dockPanel.Controls.Add(iconPictureBox);
             dockPanel.Controls.Add(nameLabel);
+
+
+            // 우클릭시 setting 기능 추가를 위해 좌클릭 한정으로 변경
+            iconPictureBox.MouseDoubleClick += (s, e) =>
+            {
+                if (e.Button == MouseButtons.Left)
+                {
+                    Process.Start(exePath);
+                }
+            };
+
+            iconPictureBox.MouseEnter += IconPictureBox_MouseEnter;
+            iconPictureBox.MouseLeave += IconPictureBox_MouseLeave;
 
             PositionAddButton();
         }
