@@ -18,7 +18,10 @@ namespace WinDock
         private Panel dockPanel;
         private CircularButton addButton;
         Stack<int> iconPosition = new Stack<int>();
-        private Button settingsButton;  // setting mode 추가
+        private Button settingsButton;  // Setting mode 추가
+
+        private const int resizeBorderSize = 5; // 경계선 두께
+        private Pen borderPen = new Pen(Color.CornflowerBlue, resizeBorderSize); // 경계선 색상 설정
 
 
         private bool isDragging = false;
@@ -33,7 +36,6 @@ namespace WinDock
         private const uint SWP_NOACTIVATE = 0x0010;
 
         private int iconSize = 40;
-        private bool isVertical = false; // 도크 방향 (가로: false, 세로: true)
 
 
         public Form1()
@@ -43,12 +45,17 @@ namespace WinDock
             SetWindowPos(this.Handle, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
             DockPositioner.PositionDock(this);
 
+
+
         }
 
         private void InitializeDock()
         {
+        
+
             this.FormBorderStyle = FormBorderStyle.None;
             this.StartPosition = FormStartPosition.Manual;
+
 
             // 화면 크기의 1/4로 사이즈 조절
             int dockWidth = Screen.PrimaryScreen.Bounds.Width / 4;
@@ -68,6 +75,7 @@ namespace WinDock
             dockPanel.Size = this.Size;
             dockPanel.Location = new Point(0, 0);
             dockPanel.BackColor = Color.FromArgb(128, 0, 0, 0);
+            dockPanel.Paint += DockPanel_Paint;
 
             SetRoundedCorners(20);
 
@@ -117,7 +125,30 @@ namespace WinDock
             dockPanel.MouseMove += Form1_MouseMove;
             dockPanel.MouseUp += Form1_MouseUp;
 
+
         }
+
+        private void DockPanel_Paint(object sender, PaintEventArgs e)
+        {
+            Graphics g = e.Graphics;
+            g.SmoothingMode = SmoothingMode.AntiAlias; // 경계선의 부드러운 처리
+
+            int radius = 20;
+
+            // 둥근 경계선을 위한 GraphicsPath 생성
+            using (GraphicsPath path = new GraphicsPath())
+            {
+                path.AddArc(new Rectangle(0, 0, radius, radius), 180, 90);
+                path.AddArc(new Rectangle(dockPanel.Width - radius, 0, radius, radius), -90, 90);
+                path.AddArc(new Rectangle(dockPanel.Width - radius, dockPanel.Height - radius, radius, radius), 0, 90);
+                path.AddArc(new Rectangle(0, dockPanel.Height - radius, radius, radius), 90, 90);
+                path.CloseFigure();
+
+                // 둥근 모서리 지정된 색상으로 설정 (Line 24)
+                g.DrawPath(borderPen, path);
+            }
+        }
+
 
 
         private void AddButton_Click(object sender, EventArgs e)
