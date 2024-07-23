@@ -18,6 +18,7 @@ namespace WinDock
         private Panel dockPanel;
         private CircularButton addButton;
         Stack<int> iconPosition = new Stack<int>();
+        private Button settingsButton;  // setting mode Ãß°¡
 
 
         private bool isDragging = false;
